@@ -30,7 +30,7 @@ function updateGameState(gameId, state) {
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         const data = JSON.parse(message);
-        handleGameMessage(ws, data);
+        // handleGameMessage(ws, data);
     });
 
     ws.send(JSON.stringify({ message: 'Welcome to Monster Mayhem!' }));
