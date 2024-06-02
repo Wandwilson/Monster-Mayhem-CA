@@ -162,6 +162,18 @@ function broadcastGameState(gameId, game) {
     });
 }
 
+function countPlayerMonsters(state, playerName) {
+    let count = 0;
+    state.forEach(row => {
+        row.forEach(cell => {
+            if (cell && cell.playerName === playerName) {
+                count++;
+            }
+        });
+    });
+    return count;
+}
+
 function sanitizeGameState(game) {
     return {
         players: game.players.map(p => ({ playerName: p.playerName })),
@@ -170,6 +182,122 @@ function sanitizeGameState(game) {
         scores: game.scores
     };
 }
+
+function isValidPosition(state, position) {
+    const numRows = state.length;
+    const numCols = state[0].length;
+    return position.x >= 0 && position.x < numCols && position.y >= 0 && position.y < numRows;
+}
+
+function isValidMove(game, from, to) {
+    // Check if the destination cell is outside the board
+    if (to.x < 0 || to.x >= game.state[0].length || to.y < 0 || to.y >= game.state.length) {
+        console.error('Destination cell is outside the board:', to);
+        return false;
+    }
+
+    // Check if the destination cell is occupied
+    const targetMonster = game.state[to.y][to.x];
+    if (targetMonster !== null && targetMonster.playerName === game.turn) {
+        return false;
+    }
+
+    // Check if the path is clear of monsters
+    if (!isPathClear(game, from, to)) {
+        return false;
+    }
+
+    // Calculate the distance of the move
+    const dx = Math.abs(from.x - to.x);
+    const dy = Math.abs(from.y - to.y);
+
+    // Allow unlimited horizontal and vertical moves
+    if ((dx > 0 && dy === 0) || (dy > 0 && dx === 0)) {
+        return true;
+    }
+
+    // Allow diagonal moves up to 2 spaces
+    if (dx === dy && dx <= 2) {
+        return true;
+    }
+
+    return false;
+}
+
+function isPathClear(game, from, to) {
+    // Get the direction of movement
+    const dx = Math.sign(to.x - from.x);
+    const dy = Math.sign(to.y - from.y);
+
+    // Check if the movement is horizontal
+    if (dx !== 0 && dy === 0) {
+        for (let x = Math.min(from.x, to.x) + 1; x < Math.max(from.x, to.x); x++) {
+            const monster = game.state[from.y][x];
+            if (monster !== null && monster.playerName !== game.turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Check if the movement is vertical
+    if (dx === 0 && dy !== 0) {
+        for (let y = Math.min(from.y, to.y) + 1; y < Math.max(from.y, to.y); y++) {
+            const monster = game.state[y][from.x];
+            if (monster !== null && monster.playerName !== game.turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Check if the movement is diagonal
+    if (dx !== 0 && dy !== 0) {
+        let x = from.x + dx;
+        let y = from.y + dy;
+
+        while (x !== to.x || y !== to.y) {
+            if (x < 0 || x >= game.state[0].length || y < 0 || y >= game.state.length) {
+                return false;
+            }
+
+            const monster = game.state[y][x];
+            if (monster !== null && monster.playerName !== game.turn) {
+                return false;
+            }
+
+            x += dx;
+            y += dy;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+function resolveCombat(currentMonster, targetMonster) {
+    const combatMatrix = {
+        '🧛‍♀️': { '🐺': 'current', '👻': 'target', '🧛‍♀️': 'both' },
+        '🐺': { '🧛‍♀️': 'target', '👻': 'current', '🐺': 'both' },
+        '👻': { '🧛‍♀️': 'current', '🐺': 'target', '👻': 'both' }
+    };
+
+    if (!combatMatrix[currentMonster.type] || !combatMatrix[currentMonster.type][targetMonster.type]) {
+        console.error('Combat type not defined:', currentMonster.type, targetMonster.type);
+        return null;
+    }
+
+    return combatMatrix[currentMonster.type][targetMonster.type];
+}
+
+function getNextPlayer(game) {
+    const currentIndex = game.players.findIndex(p => p.playerName === game.turn);
+    const nextIndex = (currentIndex + 1) % game.players.length;
+    return game.players[nextIndex].playerName;
+}
+
+
 server.listen(8080, () => {
     console.log('Server is listening on port 8080');
 });
