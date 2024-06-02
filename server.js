@@ -43,13 +43,10 @@ function gameMessage(ws, data) {
             startGame(ws, payload);
             break;
         case 'placeMonster':
-            handlePlaceMonster(ws, payload);
+            placeMonster(ws, payload);
             break;
         case 'moveMonster':
-            handleMoveMonster(ws, payload);
-            break;
-        case 'resetGame':
-            handleResetGame(ws, payload);
+            moveMonster(ws, payload);
             break;
         default:
             console.log('Unknown message type:', type);
@@ -73,6 +70,106 @@ function startGame(ws, { gameId, playerName }) {
     ws.send(JSON.stringify({ type: 'gameState', payload: sanitizeGameState(games[gameId]) }));
 }
 
+function placeMonster(ws, { gameId, playerName, position, monsterType }) {
+    const game = getGameState(gameId);
+    if (game && game.turn === playerName) {
+        if (game.scores[playerName] < 10) {
+            if (isValidPosition(game.state, position)) {
+                const row = game.state[position.y];
+                if (!row) {
+                    return;
+                }
+
+                const cell = row[position.x];
+                if (cell === undefined) {
+                    return;
+                }
+
+                if (!cell) {
+                    game.state[position.y][position.x] = { playerName, type: monsterType };
+                    game.lastPlaced = { x: position.x, y: position.y };
+                    game.turn = getNextPlayer(game);
+                    game.scores[playerName]++;
+                    updateGameState(gameId, game);
+                    broadcastGameState(gameId, game);
+                }
+            }
+        } else {
+            
+            ws.send(JSON.stringify({ type: 'error', message: 'You have reached the monster limit!' }));
+        }
+    }
+}
+
+
+function moveMonster(ws, { gameId, playerName, from, to }) {
+    const game = getGameState(gameId);
+    if (game && game.turn === playerName) {
+        const monster = game.state[from.y][from.x];
+        if (monster && monster.playerName === playerName) {
+            if (isValidMove(game, from, to)) {
+                const targetMonster = game.state[to.y][to.x];
+                if (targetMonster) {
+                    if (targetMonster.playerName !== playerName) {
+                        const result = resolveCombat(monster, targetMonster);
+                        if (result === 'both') {
+                            game.state[to.y][to.x] = null;
+                        } else if (result === 'current') {
+                            game.state[to.y][to.x] = monster;
+                        }
+                    } else {
+                        return;
+                    }
+                } else {
+                    game.state[to.y][to.x] = monster;
+                }
+                game.state[from.y][from.x] = null;
+
+                game.turn = getNextPlayer(game);
+                updateGameState(gameId, game);
+                broadcastGameState(gameId, game);
+            }
+        } 
+    } 
+}
+
+function broadcastGameState(gameId, game) {
+    const gameState = sanitizeGameState(game);
+    
+    // // Verifique se game.players e game.scores estão definidos antes de acessá-los
+    // if (!game.players || !game.scores) {
+    //     console.error('Invalid game state: Missing players or scores');
+    //     return;
+    // }
+
+    // Count how many moster each player have
+    const playerMonstersCount = {};
+    game.players.forEach(player => {
+        playerMonstersCount[player.playerName] = countPlayerMonsters(game.state, player.playerName);
+    });
+
+    // Show status of the game
+    game.players.forEach(({ playerName }) => {
+        const ws = players[playerName];
+        if (ws) {
+            const gameStatePayload = {
+                ...gameState,
+                playerMonstersCount,
+                scores: game.scores
+            };
+            ws.send(JSON.stringify({ type: 'gameState', payload: gameStatePayload }));
+        }
+    });
+}
+
+function sanitizeGameState(game) {
+    return {
+        players: game.players.map(p => ({ playerName: p.playerName })),
+        state: game.state,
+        turn: game.turn,
+        scores: game.scores
+    };
+}
 server.listen(8080, () => {
     console.log('Server is listening on port 8080');
 });
