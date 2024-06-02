@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monster Mayhem</title>
+    <link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+	crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <div class="container mt-5">
+            <div class="card mt-3 cardBody">
+                <div class="card-header shadow p-3 mb-2 bg-body rounded">
+                    <h2 class="text-center">Welcome to Monster Mayhem</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/game" method="POST"
+                        class="form-horizontal">
+                        <div class="form-group mb-3 rounded">
+                            <input type="text" class="form-control text-center p-3" id="playerName" name="playerName" placeholder="Enter Your Name" required>
+                        </div>
+
+                        <div class="form-group mb-3 rounded">
+                             <input type="text" id="invitationCode" class="form-control text-center p-3 " name="invitationCode" placeholder="Enter the id for the Game">
+                        </div>
+                        <div class="form-group mb-3 text-center border-bottom">
+                            <button type="submit" class="btn mx-2 mb-2">Start Game</button>
+                        
+                        </div>
+                       </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+		</div>
+	</div>
+    <!-- <form action="/game" method="POST">
+        <label for="playerName">Enter Your Name:</label>
+        <input type="text" id="playerName" name="playerName" placeholder="Enter Your Name" required>
+        
+        <label for="invitationCode">Invitation Code (optional):</label>
+        <input type="text" id="invitationCode" name="invitationCode" placeholder="Enter the id for the Game">
+        
+        <button type="submit">Start Game</button>
+    </form> -->
+</body>
+</html>
