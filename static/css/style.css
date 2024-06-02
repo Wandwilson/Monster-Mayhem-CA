@@ -58,7 +58,7 @@ label, input, button {
 }
 
 .turn {
-    border: 2px solid green;
+    border: 2px solid rgb(4, 11, 11);
 }
 
 .cell {
