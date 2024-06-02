@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    //Function genereted by AI.
     document.getElementById('game-board').addEventListener('click', (event) => {
         if (!document.getElementById('game-board').classList.contains('turn')) {
             alert('Not your turn!');
@@ -75,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 cellElement.classList.add('btnGame');
                 cellElement.classList.add('mx-2');
                 cellElement.classList.add('mb-2');
-                // cellElement.classList.add('text-center');
                 if (cell) {
                     cellElement.classList.add(`player-${cell.playerName}`);
                     cellElement.innerText = cell.type;
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
+    // function create by AI.
     function updateScoreboard(playerMonstersCount) {
         const scoreboardElement = document.getElementById('scoreboard');
         scoreboardElement.innerHTML = '';

@@ -1,42 +1,58 @@
+// Import necessary modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const WebSocket = require('ws');
 
+// Initialize the Express application
 const app = express();
+
+// Create an HTTP server and a WebSocket server
 const server = require('http').createServer(app);
 const wss = new WebSocket.Server({ server });
+
+// Initialize objects to store games and players
 const games = {};
 const players = {};
 
-
+// Set up EJS as the view engine and configure the views directory
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'templates', 'views'));
 
+// Use bodyParser middleware to parse URL-encoded data
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files from the 'static' directory
 app.use(express.static(path.join(__dirname, 'static')));
 
+// Import and use the index router
 const indexRouter = require('./routes/index');
 app.use('/', indexRouter);
 
+// Function to get the state of a game by its ID
 function getGameState(gameId) {
     return games[gameId] || null;
 }
 
+// Function to update the state of a game by its ID
 function updateGameState(gameId, state) {
     games[gameId] = state;
 }
 
+// WebSocket connection event
 wss.on('connection', (ws) => {
+    // WebSocket message event
     ws.on('message', (message) => {
         const data = JSON.parse(message);
-        gameMessage(ws, data);
+        handleGameMessage(ws, data);
     });
 
+    // Send a welcome message to the WebSocket client
     ws.send(JSON.stringify({ message: 'Welcome to Monster Mayhem!' }));
 });
 
-function gameMessage(ws, data) {
+// Function to handle game messages received via WebSocket
+function handleGameMessage(ws, data) {
     const { type, payload } = data;
     switch (type) {
         case 'startGame':
@@ -53,8 +69,10 @@ function gameMessage(ws, data) {
     }
 }
 
+// Function to start a game
 function startGame(ws, { gameId, playerName }) {
     if (!games[gameId]) {
+        // If the game doesn't exist, create a new game
         games[gameId] = {
             players: [{ playerName, ws }],
             state: Array(10).fill().map(() => Array(10).fill(null)),
@@ -63,13 +81,15 @@ function startGame(ws, { gameId, playerName }) {
             scores: { [playerName]: 0 }
         };
     } else {
+        // If the game exists, add the player to the existing game
         games[gameId].players.push({ playerName, ws });
-        games[gameId].scores[playerName] = 0; // Initialize score if player joins an existing game
+        games[gameId].scores[playerName] = 0; // Initialize the player's score
     }
     players[playerName] = ws;
     ws.send(JSON.stringify({ type: 'gameState', payload: sanitizeGameState(games[gameId]) }));
 }
 
+// Function to place a monster on the board
 function placeMonster(ws, { gameId, playerName, position, monsterType }) {
     const game = getGameState(gameId);
     if (game && game.turn === playerName) {
@@ -95,13 +115,12 @@ function placeMonster(ws, { gameId, playerName, position, monsterType }) {
                 }
             }
         } else {
-            
             ws.send(JSON.stringify({ type: 'error', message: 'You have reached the monster limit!' }));
         }
     }
 }
 
-
+// Function to move a monster on the board
 function moveMonster(ws, { gameId, playerName, from, to }) {
     const game = getGameState(gameId);
     if (game && game.turn === playerName) {
@@ -129,26 +148,26 @@ function moveMonster(ws, { gameId, playerName, from, to }) {
                 updateGameState(gameId, game);
                 broadcastGameState(gameId, game);
             }
-        } 
-    } 
+        }
+    }
 }
 
+// Function to broadcast the game state to all players
 function broadcastGameState(gameId, game) {
     const gameState = sanitizeGameState(game);
-    
-    // // Verifique se game.players e game.scores estão definidos antes de acessá-los
-    // if (!game.players || !game.scores) {
-    //     console.error('Invalid game state: Missing players or scores');
-    //     return;
-    // }
 
-    // Count how many moster each player have
+    if (!game.players || !game.scores) {
+        console.error('Invalid game state: Missing players or scores');
+        return;
+    }
+
+    // Count how many monsters each player has
     const playerMonstersCount = {};
     game.players.forEach(player => {
         playerMonstersCount[player.playerName] = countPlayerMonsters(game.state, player.playerName);
     });
 
-    // Show status of the game
+    // Send the updated game state to each player
     game.players.forEach(({ playerName }) => {
         const ws = players[playerName];
         if (ws) {
@@ -162,6 +181,7 @@ function broadcastGameState(gameId, game) {
     });
 }
 
+// Function to count how many monsters a player has
 function countPlayerMonsters(state, playerName) {
     let count = 0;
     state.forEach(row => {
@@ -174,6 +194,7 @@ function countPlayerMonsters(state, playerName) {
     return count;
 }
 
+// Function to sanitize the game state by removing unnecessary information
 function sanitizeGameState(game) {
     return {
         players: game.players.map(p => ({ playerName: p.playerName })),
@@ -183,12 +204,14 @@ function sanitizeGameState(game) {
     };
 }
 
+// Function to check if a position is valid on the board
 function isValidPosition(state, position) {
     const numRows = state.length;
     const numCols = state[0].length;
     return position.x >= 0 && position.x < numCols && position.y >= 0 && position.y < numRows;
 }
 
+// Function to check if a move is valid
 function isValidMove(game, from, to) {
     // Check if the destination cell is outside the board
     if (to.x < 0 || to.x >= game.state[0].length || to.y < 0 || to.y >= game.state.length) {
@@ -224,8 +247,8 @@ function isValidMove(game, from, to) {
     return false;
 }
 
+// Function to check if the path is clear of monsters
 function isPathClear(game, from, to) {
-    // Get the direction of movement
     const dx = Math.sign(to.x - from.x);
     const dy = Math.sign(to.y - from.y);
 
@@ -276,6 +299,7 @@ function isPathClear(game, from, to) {
     return false;
 }
 
+// Function to resolve combat between two monsters
 function resolveCombat(currentMonster, targetMonster) {
     const combatMatrix = {
         '🧛‍♀️': { '🐺': 'current', '👻': 'target', '🧛‍♀️': 'both' },
@@ -291,13 +315,14 @@ function resolveCombat(currentMonster, targetMonster) {
     return combatMatrix[currentMonster.type][targetMonster.type];
 }
 
+// Function to get the next player
 function getNextPlayer(game) {
     const currentIndex = game.players.findIndex(p => p.playerName === game.turn);
     const nextIndex = (currentIndex + 1) % game.players.length;
     return game.players[nextIndex].playerName;
 }
 
-
+// Start the server on port 8080
 server.listen(8080, () => {
     console.log('Server is listening on port 8080');
 });

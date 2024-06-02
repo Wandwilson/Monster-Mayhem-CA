@@ -27,8 +27,6 @@ label, input, button {
 .btnGame {
 	border-radius: 12px;
 	background: #fff;
-	/* border: 2px solid #460375; */
-	/* color: #000; */
 	margin-right: -40px;
 	margin-left: 45px;
 	transition: all .25s ease;
@@ -55,28 +53,13 @@ label, input, button {
     margin: 0 auto;
 }
 
-/* .cell {
-    width: 100px;
-    height: 70px;
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-} */
-
 .cell.player-1 {
     background-color: lightblue;
 }
 
-
 .turn {
     border: 2px solid green;
 }
-
-/* .game-board.turn .cell {
-    outline: 2px solid green;
-} */
 
 .cell {
     width: 100px;
@@ -87,7 +70,6 @@ label, input, button {
     line-height: 40px;
     cursor: pointer; 
 }
-
 
 .cell.occupied {
     background-color: lightblue;
@@ -108,156 +90,11 @@ label, input, button {
     background-color: lightcoral;
 }
 
-
-#navMenu > span{
-    display: block;
-    width: 28px;
-    height: 2px;
-    border-radius: 9999px;
-    background-color: black;
-}
-#navMenu > span:not(:last-child){
-    margin-bottom: 7px;
-}
-#navMenu, #navMenu > span{
-    transition: all .4s ease-in-out;
-    border-color: rgba(0, 0, 0, 0);
-}
-#navMenu.active{
-    transition-delay: 0.8s;
-    transform: rotate(45deg);
-
-}
-#navMenu.active > span:nth-child(2){
-    width: 0;
-}
-#navMenu.active > span:nth-child(1),
-#navMenu.active > span:nth-child(3){
-    transition-delay: .4s;
-}
-#navMenu.active > span:nth-child(1){
-    transform: translateY(9px);
-}
-#navMenu.active > span:nth-child(3){
-    transform: translateY(-9px) rotate(90deg);
-}
-
-
-.scroll-table {
-    margin-top: 100px;
-    width: 100%;
-    height: 500px;
-    overflow: auto;
- }
-
-header.masthead {
-	padding-top: 10rem;
-	padding-bottom: calc(45rem - 6.5rem);
-	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%,
-		rgba(0, 0, 0, 0.8) 100%), url("/../images/bg-masthead.jpg");
-	background-position: center;
-	background-repeat: no-repeat;
-	background-attachment: scroll;
-	background-size: cover;
-}
-
-hr.divider {
-	height: 0.2rem;
-	max-width: 3.25rem;
-	margin: 1.5rem auto;
-	background-color: #f4623a;
-	opacity: 1;
-}
-
-hr.divider-light {
-	background-color: #fff;
-}
-
-.mt {
-	margin-top: 50px;
-}
-
-.mt-10 {
-	margin-top: 100px;
-}
-
-.ml {
-	margin-left: 1000px;
-}
-
-.text-color {
-	color: white;
-}
-
-#navMenu>span {
-	display: block;
-	width: 28px;
-	height: 2px;
-	border-radius: 9999px;
-	background-color: black;
-}
-
-#navMenu>span:not(:last-child) {
-	margin-bottom: 7px;
-}
-
-.br {
-	background-color: #000;
-}
-
-.nav-text {
-	color: #000;
-}
-
-.nav-header {
-	color: #fff;
-}
-
-.logo {
-	max-height: 40px;
-}
-
-a {
-	text-decoration: none;
-	padding-right: .5em;
-	padding-left: .5em;
-}
-
 .cardBody {
 	border-radius: 0.5em;
 	border: 2px solid #000;
 	transition: all 0.3s;
 	box-shadow: 6px 6px 12px #000, -6px -6px 12px #000;
-}
-
-.float-right {
-	float: right;
-}
-
-.float-left {
-	float: left;
-}
-
-
-.button {
-	text-decoration: none;
-	color: #090909;
-	margin-left: 30px;
-	margin-right: 30px;
-	margin-top: 30px;
-	width: 176.52px;
-	display: inline-block;
-	padding: 0.7em 1.7em;
-	font-size: 18px;
-	border-radius: 0.5em;
-	background: #e8e8e8;
-	border: 1px solid #e8e8e8;
-	transition: all 0.3s;
-	box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #fff;
-}
-
-.button:hover {
-	box-shadow: -6px -6px 12px #c5c5c5, 6px 6px 12px #fff;
 }
 
 .btn {
@@ -273,27 +110,8 @@ a {
 	outline: none;
 }
 
-.btnActions{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;   
-}
-
 .btn:hover {
 	background: #000;
-	color: #fff;
-	box-shadow: 0px 0px 8px 8px rgb(10 0 0/ 60%);
-}
-
-.btnUpdate:hover {
-	background: blue;
-	color: #fff;
-	box-shadow: 0px 0px 8px 8px rgb(10 0 0/ 60%);
-}
-
-.btnDelete:hover {
-	background: red;
 	color: #fff;
 	box-shadow: 0px 0px 8px 8px rgb(10 0 0/ 60%);
 }
@@ -311,19 +129,4 @@ a {
 ::-webkit-scrollbar-thumb {
 	background: bisque;
 	border-radius: 50px;
-}
-
-@media ( max-width : 1325px) {
-	.sigimg {
-		display: none;
-	}
-	.ml {
-		margin-left: 0;
-	}
-	.mt-10 {
-		margin-top: 200px;
-	}
-	.mt {
-		margin-top: 70px;
-	}
 }
