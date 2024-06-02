@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('Received message from server:', message);
+        // console.log('Received message from server:', message);
 
         if (message.type === 'gameState') {
             currentTurnPlayer = message.payload.turn; 
@@ -23,9 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 document.getElementById('game-board').classList.remove('turn');
             }
-        } else if (message.type === 'statsUpdate') {
-            updateGameStats(message.payload.totalGamesPlayed, message.payload.playerStats);
         }
     };
+
+
+    let selectedMonster = null;
+    let selectedPosition = null;
+
+    document.querySelectorAll('.monster-selection').forEach(element => {
+        element.addEventListener('click', (event) => {
+            selectedMonster = event.target.dataset.monsterType;
+            selectedPosition = null;
+            console.log('Selected monster:', selectedMonster);
+        });
+    });
 
 });
