@@ -10,7 +10,7 @@
   "author": "Wandwilson Almeida Da Silva 2021230",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "bootstrap": "^5.3.3",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
